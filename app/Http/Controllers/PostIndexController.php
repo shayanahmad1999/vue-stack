@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PostResource;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -12,9 +13,19 @@ class PostIndexController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke(): Response
+    public function __invoke(Request $request): Response
     {
-        $posts = auth()->user()->posts()->latest()->paginate(10)->withQueryString();
+        $query = auth()->user()->posts();
+
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        $posts = $query->latest()->paginate(10)->withQueryString();
         return Inertia::render('posts/Index', [
             'posts' => PostResource::collection($posts),
             'meta' => [
@@ -23,7 +34,7 @@ class PostIndexController extends Controller
                 'per_page' => $posts->perPage(),
                 'total' => $posts->total(),
             ],
-
+            'users' => User::all(),
         ]);
     }
 }

@@ -51,3 +51,8 @@ export type Post = {
     image: string;
     slug: string;
 };
+
+export type UserFilter = {
+    id: number;
+    name: string;
+} 
