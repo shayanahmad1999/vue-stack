@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PostResource;
+use App\Models\Post;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class PostEditController extends Controller
 {
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request)
+    public function __invoke(Post $post)
     {
-        //
+        return Inertia::render('posts/Edit', [
+            'currentPost' => new PostResource($post)
+        ]);
     }
 }

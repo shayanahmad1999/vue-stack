@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { PostForm, type BreadcrumbItem } from '@/types';
+import { Post, PostForm, type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button';
@@ -12,21 +12,26 @@ import { ref } from 'vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Create Post',
+        title: 'Edit Post',
         href: '/posts',
     },
 ];
 
 const imagePreview = ref<string | null>(null);
 
+const {currentPost} = defineProps<{
+    currentPost: Post;
+}>();
+
 const form = useForm<PostForm>({
-    title: '',
-    content: '',
+    title: currentPost.title,
+    content: currentPost.content,
     image: null,
+    _method: 'put'
 });
 
 const submit = () => {
-    form.post(route('posts.store'));
+    form.post(route('posts.update', currentPost.id));
 };
 
 const handleImageInput = (e: Event) => {
@@ -41,14 +46,14 @@ const handleImageInput = (e: Event) => {
 </script>
 
 <template>
-    <Head title="Create Post" />
+    <Head title="Update Post" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
             <div class="flex justify-end">
                 <Link :href="route('posts.index')" class="text-indigo-400 hover:text-indigo-600">View Posts</Link>
             </div>
-            <div class="min-w-md mx-auto p-6 mt-8 shadow-lg rounded-2xl bg-white dark:bg-slate-950">
+            <div class="min-w-md mx-auto p-6 mt-8 shadow-lg rounded-2xl">
                 <form @submit.prevent="submit" class="flex flex-col gap-6">
                     <div class="grid gap-6">
                         
@@ -74,7 +79,10 @@ const handleImageInput = (e: Event) => {
                                 :tabindex="2"
                                 @change="(handleImageInput)"
                             />
-                            <img v-if="imagePreview" :src="imagePreview" alt="img" class="w-12 h-12 rounded object-cover">
+                            <div class="flex space-x-2">
+                                <img v-if="currentPost.image" :src="currentPost.image" alt="img" :class="[imagePreview ? 'opacity-50' : '', 'h-12 w-12 rounded object-cover']">
+                                <img v-if="imagePreview" :src="imagePreview" alt="img" class="h-12 w-12 rounded object-cover">
+                            </div>
                             <InputError :message="form.errors.image" />
                         </div>
 
@@ -92,7 +100,7 @@ const handleImageInput = (e: Event) => {
 
                         <Button type="submit" class="mt-4 w-full" :tabindex="4" :disabled="form.processing">
                             <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
-                            Create Post
+                            Update Post
                         </Button>
                     </div>
                 </form>
