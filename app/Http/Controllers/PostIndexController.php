@@ -14,9 +14,16 @@ class PostIndexController extends Controller
      */
     public function __invoke(): Response
     {
-        $posts = auth()->user()->posts()->latest()->get();
+        $posts = auth()->user()->posts()->latest()->paginate(10)->withQueryString();
         return Inertia::render('posts/Index', [
             'posts' => PostResource::collection($posts),
+            'meta' => [
+                'current_page' => $posts->currentPage(),
+                'last_page' => $posts->lastPage(),
+                'per_page' => $posts->perPage(),
+                'total' => $posts->total(),
+            ],
+
         ]);
     }
 }

@@ -38,8 +38,17 @@ watch(() => usePage<{flash: Flash}>().props.flash,
 });
 
 defineProps<{
-  posts: Post[],
+  posts: {
+    data: Post[],
+    meta: {
+      current_page: number,
+      last_page: number,
+      per_page: number,
+      total: number
+    }
+  }
 }>();
+
 
 </script>
 
@@ -68,7 +77,7 @@ defineProps<{
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow v-for="post in posts" :key="post.id">
+                    <TableRow v-for="post in posts.data" :key="post.id">
                       <TableCell class="font-medium">
                         {{post.id}}
                       </TableCell>
@@ -82,6 +91,39 @@ defineProps<{
                     </TableRow>
                   </TableBody>
                 </Table>
+                <div class="flex items-center justify-between mt-6">
+              <button
+                class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 dark:bg-gray-900"
+                :disabled="posts.meta.current_page <= 1"
+                @click="$inertia.visit(`?page=${posts.meta.current_page - 1}`)"
+              >
+                Previous
+              </button>
+
+              <span class="text-sm text-gray-700 dark:text-white">
+                Page {{ posts.meta.current_page }} of {{ posts.meta.last_page }}
+              </span>
+
+              <button
+                class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 dark:bg-gray-900"
+                :disabled="posts.meta.current_page >= posts.meta.last_page"
+                @click="$inertia.visit(`?page=${posts.meta.current_page + 1}`)"
+              >
+                Next
+              </button>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-white">
+              Showing
+              {{ (posts.meta.current_page - 1) * posts.meta.per_page + 1 }}
+              to
+              {{
+                Math.min(
+                  posts.meta.current_page * posts.meta.per_page,
+                  posts.meta.total
+                )
+              }}
+              of {{ posts.meta.total }} entries
+            </p>
             </div>
         </div>
     </AppLayout>
