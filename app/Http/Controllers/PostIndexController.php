@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PostResource;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,7 +16,12 @@ class PostIndexController extends Controller
      */
     public function __invoke(Request $request): Response
     {
-        $query = auth()->user()->posts();
+        $auth = auth()->user();
+        if ($auth->isAdmin()) {
+            $query = Post::query();
+        } else {
+            $query = $auth->posts();
+        }
 
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
