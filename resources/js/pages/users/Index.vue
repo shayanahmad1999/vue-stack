@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Post, User, UserFilter, type BreadcrumbItem } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner'
 
 import {
@@ -32,7 +32,6 @@ onMounted(() => {
         (flash: Flash) => {
             if (flash.success) {
                 toast.success(flash.success);
-                flash.success = null;
             }
         }, { immediate: true });
 });
@@ -68,6 +67,19 @@ const resetFilters = () => {
     search.value = '';
     applyFilters();
 };
+
+const form = useForm({
+    role: '',
+});
+
+const handleRoleChange = (userId: number, newRole: string) => {
+    form.role = newRole
+
+    form.post(route('users.updateRole', userId), {
+        preserveScroll: true,
+        preserveState: true,
+    })
+}
 
 </script>
 
@@ -106,6 +118,7 @@ const resetFilters = () => {
                             </TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Email</TableHead>
+                            <TableHead>Role</TableHead>
                             <TableHead class="text-right">
                                 Action
                             </TableHead>
@@ -118,6 +131,14 @@ const resetFilters = () => {
                             </TableCell>
                             <TableCell>{{ user.name }}</TableCell>
                             <TableCell>{{ user.email }}</TableCell>
+                            <TableCell>
+                                <select :value="user.role" @change="handleRoleChange(user.id, $event.target.value)"
+                                    class="px-3 py-2 border rounded w-2/4 dark:bg-gray-800 dark:text-white">
+                                    <option value="admin">Admin</option>
+                                    <option value="creator">Creator</option>
+                                    <option value="guest">Guest</option>
+                                </select>
+                            </TableCell>
                             <TableCell class="flex justify-end gap-2">
                                 <Link :href="route('users.edit', user.id)"
                                     class="text-indigo-400 hover:text-indigo-500">Edit</Link>

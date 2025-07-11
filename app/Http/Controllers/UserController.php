@@ -22,7 +22,7 @@ class UserController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = User::query();
+        $query = User::query()->where('id', '!=', auth()->user()->id);
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%')
                 ->orWhere('email', 'like', '%' . $request->search . '%');
@@ -123,5 +123,17 @@ class UserController extends Controller
         return redirect()
             ->route('users.index')
             ->with('success', 'User deleted successfully.');
+    }
+
+    public function updateRole(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'role' => ['required', 'in:admin,creator,guest'],
+        ]);
+
+        $user->role = $validated['role'];
+        $user->save();
+
+        return to_route('users.index')->with('success', 'User role updated successfully.');
     }
 }

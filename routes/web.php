@@ -40,6 +40,7 @@ Route::middleware(['auth', 'verified', 'multiRole:admin'])
         Route::get('/{user}/edit', 'edit')->name('edit');
         Route::put('/{user}/update', 'update')->name('update');
         Route::get('/{user}/delete', 'destroy')->name('delete');
+        Route::post('/{user}/role', 'updateRole')->name('updateRole');
     });
 
 require __DIR__ . '/settings.php';
