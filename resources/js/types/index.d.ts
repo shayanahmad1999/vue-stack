@@ -50,6 +50,11 @@ export type Post = {
     content: string;
     image: string;
     slug: string;
+    likes_count?: number;
+    liked?: boolean;
+    user?: {
+        name: string;
+    };
 };
 
 export type UserFilter = {
